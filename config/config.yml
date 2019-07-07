@@ -17,12 +17,12 @@ mappings:
       NAT: ami-ad227cc4
       centos7: ami-074e2d6769f445be5
       ubuntu1404: ami-74e27e1c
-      bastion: ami-74e27e1c
+      bastion: ami-074e2d6769f445be5
     us-west-2:
       NAT: ami-290f4119
       centos7: ami-01ed306a12b7d1c96
       ubuntu1404: ami-5189a661
-      bastion: ami-5189a661
+      bastion: ami-01ed306a12b7d1c96
 
 vpc_parameters: &vpc_parameters
   VpcId: ${output vpc::VpcId} # parametrs with ::'s in them refer to <stack>::<Output>
@@ -62,23 +62,23 @@ stacks:
       # If provided, it will be added to the dns search path of the DHCP
       # Options
       InternalDomain: internal
-  # - name: bastion
-  #   class_path: stacker_blueprints.bastion.Bastion
-  #   enabled: true
-  #   variables:
-  #     # Extends the parameters dict with the contents of the vpc_parameters
-  #     # anchor. Basically we're including all VPC Outputs in the parameters
-  #     # of the bastion stack. Note: Stacker figures out, automatically, which
-  #     # parameters the stack actually needs and only submits those to each
-  #     # stack. For example, most stacks are in the PrivateSubnets, but not
-  #     # the PublicSubnets, but stacker deals with it for you.
-  #     << : *vpc_parameters
-  #     InstanceType: m3.medium
-  #     OfficeNetwork: 203.0.113.0/24
-  #     MinSize: 2
-  #     MaxSize: 2
-  #     SshKeyName: default
-  #     ImageName: bastion
+  - name: bastion
+    class_path: stacker_blueprints.bastion.Bastion
+    enabled: true
+    variables:
+      # Extends the parameters dict with the contents of the vpc_parameters
+      # anchor. Basically we're including all VPC Outputs in the parameters
+      # of the bastion stack. Note: Stacker figures out, automatically, which
+      # parameters the stack actually needs and only submits those to each
+      # stack. For example, most stacks are in the PrivateSubnets, but not
+      # the PublicSubnets, but stacker deals with it for you.
+      << : *vpc_parameters
+      InstanceType: t2.micro
+      OfficeNetwork: 162.156.1.187/32
+      MinSize: 2
+      MaxSize: 2
+      SshKeyName: default
+      ImageName: bastion
   # - name: myDB
   #   class_path: stacker_blueprints.postgres.PostgresRDS
   #   # this stack is locked, which means it will not update unless you pass the
@@ -116,7 +116,9 @@ stacks:
       #ELBCertName: mycert
       UserData:  |      
         #!/bin/bash
-        /usr/bin/yum -y install git-core
-        hostname=$(hostname)
-        echo "hello $hostname" > /tmp/index.html
-      
+        sudo yum -y install epel-release
+        sudo yum -y install nginx
+        HOSTNAME=$(hostname)
+        sudo sed -i -e "s/<p>This page is used to test/<p>hello $HOSTNAME<\/p><p>This page is used to test/" /usr/share/nginx/html/index.html
+        sudo systemctl enable nginx
+        sudo systemctl start nginx

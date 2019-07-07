@@ -20,6 +20,11 @@ The things I added to it are:
 - AutoScalingPolicies to scale up and down based on CloudWatch Alarms for CPUUtilization
   All in the create_autoscaling_policies() function
 
+Before running the stacker build process  
+- Install proper libs by `pipenv install`
+- Create a ssh-key in AWS using your public key and call it 'default'
+  If you use your existing key, change the key-name in config.yml to yours
+
 The followings are commands samples:
 ```bash
 stacker build -r us-west-2 --stacks all -v -t config/staging.env config/config.yml

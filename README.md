@@ -24,6 +24,28 @@ Before running the stacker build process
 - Install proper libs by `pipenv install`
 - Create a ssh-key in AWS using your public key and call it 'default'
   If you use your existing key, change the key-name in config.yml to yours
+- Modify the AMI in config.yml to meet your AMI version requirement, I use CentOS7
+- Change `OfficeNetwork: 162.156.1.187/32` in config.yml to your PC public IP so only you can access the bastion server. I used whatismyip service to find my own public IP
+
+
+NOTE:
+In the original Stacker blueprint, the ASG doesn't have 'MetricsCollection' config  
+Missing that will disable CloudWatch metrics collection then it won't trigger the policy  
+I added that line to the original function like below  
+
+```python
+    def get_autoscaling_group_parameters(self, launch_config_name, elb_name):
+        return {
+            'AvailabilityZones': Ref("AvailabilityZones"),
+            'LaunchConfigurationName': Ref(launch_config_name),
+            'MinSize': Ref("MinSize"),
+            'MaxSize': Ref("MaxSize"),
+            'MetricsCollection': [MetricsCollection(Granularity="1Minute")],
+            'VPCZoneIdentifier': Ref("PrivateSubnets"),
+            'LoadBalancerNames': If("CreateELB", [Ref(elb_name), ], []),
+            'Tags': [ASTag('Name', self.name, True)],
+        }
+```
 
 The followings are commands samples:
 ```bash

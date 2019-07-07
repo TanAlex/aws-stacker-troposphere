@@ -75,8 +75,8 @@ stacks:
       << : *vpc_parameters
       InstanceType: t2.micro
       OfficeNetwork: 162.156.1.187/32
-      MinSize: 2
-      MaxSize: 2
+      MinSize: 1
+      MaxSize: 1
       SshKeyName: default
       ImageName: bastion
   # - name: myDB

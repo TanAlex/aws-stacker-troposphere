@@ -57,5 +57,5 @@ stacker build -r us-west-2 -v -t config/staging.env config/config.yml
 stacker build -r us-west-2 --stacks vpc -v -d stacks_dump -t config/staging.env config/config.yml
 
 # To distroy
-stacker destroy -r us-west-2 --stacks vpc -v -d stacks_dump -t config/staging.env config/config.yml
+stacker destroy -r us-west-2 -v --force -t config/staging.env config/config.yml
 ```
